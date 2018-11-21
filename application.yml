@@ -1,0 +1,194 @@
+server:
+  port: 8085 #端口
+
+#mybatis配置
+mybatis:
+  type-aliases-package: com.oneinstep.caipiao.user.domain  #指定myabtis实体类包扫描路径
+  mapper-locations: classpath*:mappers/*/*.xml             #指定mapper文件路径
+  configuration:
+    cache-enabled: false       #开启缓存
+
+caipiao:
+  swagger-open: true  #开启swagger2，访问路径: localhost/swagger-ui.html
+
+#日志路径
+log:
+  path: user-logs
+
+#spring通用配置
+spring:
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    platform: mysql
+    type: com.alibaba.druid.pool.DruidDataSource  #指定连接池的类型--druid
+    # 下面为连接池的补充设置，应用到上面所有数据源中
+    druid:
+      initial-size: 1  #初始化连接数
+      min-idle: 1  #最小空闲连接数
+      max-active: 100  #最大连接数
+      #transaction-query-timeout: 6000 #事务查询超时时间
+      #remove-abandoned-timeout: 1800 #关闭空闲连接超时时间
+      #query-timeout: 6000   #查询超时时间
+      max-wait: 60000  #获取连接等待超时的时间
+      #validation-query: SELECT 'X'
+      #time-between-eviction-runs-millis: 60000   # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      #min-evictable-idle-time-millis: 300000     # 配置一个连接在池中最小生存的时间，单位是毫秒
+      #testWhileIdle: true
+      #testOnBorrow: false
+      #testOnReturn: false
+      # 打开PSCache，并且指定每个连接上PSCache的大小
+      #poolPreparedStatements: true
+      #maxPoolPreparedStatementPerConnectionSize: 20
+      # 配置监控统计拦截的filters，stat用于监控界面，'wall'用于防火墙防御sql注入, slf4j用于druid记录sql日志
+      filters: stat,config
+      ######Druid 过滤配置######
+      #是否启用StatFilter默认值true
+      #web-stat-filter:
+        #enabled: true
+        #url-pattern: /*
+        #exclusions: *.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*
+        #session-stat-enable: false
+        #session-stat-max-count: 1000
+        #principal-session-name: druid
+        #principal-cookie-name: druid
+        #profile-enable: true
+      ######Druid 监控配置######
+      stat-view-servlet:
+        enabled: true #是否开启监控
+        url-pattern: /druid/*
+        reset-stat-enable: true  #允许清空统计数据
+        login-username: druid
+        login-password: druid
+
+  devtools:
+    restart:
+      enabled: false
+      additional-paths: caipiao-user/src/main/java
+
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+  # redis
+  redis:
+    # 数据库索引，默认0
+    database: 0
+    jedis:
+      pool:
+        # 连接池最大连接数（使用负值表示没有限制）
+        max-active: 800
+        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        #max-wait: 10000
+        # 连接池中的最大空闲连接
+        max-idle: 20
+        # 连接池中的最小空闲连接
+        min-idle: 2
+    # 连接超时时间（毫秒）
+    #timeout: 30000
+
+  #缓存
+  cache:
+      #缓存类型
+      type: redis
+
+  #为空的不传给前端
+  jackson:
+    default-property-inclusion: non_null
+    time-zone: Asia/Shanghai
+
+yunzhou:
+  dblog:
+    enabled: false
+  mvcInterceptor:
+    enabled: true
+  user:
+      head-image: http://39.108.61.68:80/group1/M00/00/08/rBKZOFvAKYSAAYTBAAAbkW-TkKk349.png
+
+
+#(配置项只包括环境不同项)
+########################################### 开发环境######################################################
+---
+spring:
+    profiles: dev
+    datasource:
+      url: jdbc:mysql://192.168.2.22:3306/caipiao?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC&useSSL=true
+      username: root
+      password: root
+
+  #redis
+    redis:
+      # 服务器IP地址
+      host: 192.168.2.22
+      # 连接端口
+      port: 6379
+      # Redis服务器连接密码（默认为空）
+      password: yunzhou123!
+    rabbitmq:
+      host: 192.168.2.22
+      port: 5672
+      username: guest
+      password: guest
+      requested-heartbeat: 60s
+---
+spring:
+  profiles: ali
+  datasource:
+    url: jdbc:mysql://39.108.61.68:3306/caipiao?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC&useSSL=true
+    username: root
+    password: root
+
+  #redis
+  redis:
+    # 服务器IP地址
+    host: 39.108.61.68
+    # 连接端口
+    port: 16379
+    # Redis服务器连接密码（默认为空）
+    password: yunzhou123!
+  rabbitmq:
+    host: 39.108.61.68
+    port: 5672
+    username: guest
+    password: guest
+    requested-heartbeat: 60s
+########################################### 测试环境######################################################
+---
+spring:
+    profiles: test
+    datasource:
+      url: jdbc:mysql://192.168.2.20:3306/caipiao?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC&useSSL=true
+      username: root
+      password: root
+
+    redis:
+      host: 192.168.2.20
+      port: 6379
+      password:
+    rabbitmq:
+      host: 192.168.2.20
+      port: 5672
+      username: guest
+      password: guest
+      requested-heartbeat: 60s
+########################################### 生产环境######################################################
+---
+spring:
+    profiles: produce
+    datasource:
+      url: jdbc:mysql://localhost:3306/caipiao?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC&useSSL=true
+      username: root
+      password: root
+
+    redis:
+      host: 39.108.61.68
+      port: 16379
+      password: yunzhou123!
+    rabbitmq:
+      host: 39.108.61.68
+      port: 5672
+      username: guest
+      password: guest
+      requested-heartbeat: 60s
